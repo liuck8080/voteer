@@ -103,19 +103,22 @@ impl Election {
 
     pub fn vote(&mut self, options: &Vec<String>, owner_id: AccountId) -> bool {
         assert!(self.multiple && options.len() >= 1 || !self.multiple && options.len() == 1);
+
         let mut changed = false;
-        self.candidates
-            .iter()
-            .enumerate()
-            .filter(|item| options.iter().any(|y| item.1 == y.as_str()))
-            .map(|option| option.0)
-            .for_each(|idx| {
-                let mut support_set = self.dict.get(idx as u64).unwrap();
+        for (idx, candidate) in self.candidates.iter().enumerate() {
+            let mut support_set = self.dict.get(idx as u64).unwrap();
+            if options.contains(&candidate) { //vote for
                 if support_set.insert(&owner_id) {
                     self.dict.replace(idx as u64, &support_set);
                     changed = true;
                 }
-            });
+            } else { // not for, should remove
+                if support_set.remove(&owner_id) {
+                    self.dict.replace(idx as u64, &support_set);
+                    changed = true;
+                }
+            }
+        }
         changed
     }
 

@@ -22,7 +22,6 @@ export async function initContract() {
     // Change methods can modify the state. But you don't receive the returned value when called.
     changeMethods: ['create_election', 'vote', 'revoke'],
   })
-  console.log(window.contract)
 }
 
 export function logout() {
