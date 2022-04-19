@@ -230,6 +230,18 @@ impl Voteer {
         }
         vec![]
     }
+
+    pub fn get_last5elections(self)->Vec<ElectionInfo> {
+        let sz = self.election_count.min(5) as usize;
+        let mut ans = Vec::with_capacity(sz);
+        for id in (0..self.election_count).rev().take(sz) {
+            ans.push(ElectionInfo {
+                name: self.elections.get(&id).unwrap().name,
+                id,
+            });
+        }
+        return ans;
+    }
 }
 
 #[cfg(test)]

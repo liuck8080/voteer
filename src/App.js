@@ -19,7 +19,7 @@ export default function App() {
       if (window.walletConnection.isSignedIn()) {
 
         // window.contract is set by initContract in index.js
-        window.contract.get_elections({user_id:window.accountId})
+        window.contract.get_last5elections()
           .then(electionsFromContract => {
             set_elections(electionsFromContract)
           })

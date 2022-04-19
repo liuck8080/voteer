@@ -15,9 +15,9 @@ export default function ElectionCreate({contract}) {
             multiple: multiple,
             name: name,
         }
-        contract.create_election(params).then(v => console.log(v))
-        console.log(v)
+
         console.log(params)
+        contract.create_election(params).then(v => console.log(v))
     }
 
     function onChangeValue(event) {
