@@ -20,7 +20,7 @@ fn create_election_test_single() {
 
     let candidates = vec!["head： watch movie", "tail: play basketball", "stand: read a book"]
     .iter().map(|v|v.to_string()).collect::<Vec<_>>();
-    let election_name = "to do what".to_string();
+    let election_name = "to do what by flip a coin".to_string();
     let election_id = contract.create_election(&candidates, false, &election_name);
     let options = contract.get_candidates(election_id);
     assert_eq!(candidates.len(), options.len());

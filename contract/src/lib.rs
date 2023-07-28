@@ -61,7 +61,7 @@ impl Prefix {
 #[serde(crate = "near_sdk::serde")]
 pub struct Candidate {
     name: String,
-    supported: u64, // supporter number
+    supported: u64, // supporter number, dynamically get from chain
 }
 
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
@@ -75,9 +75,12 @@ pub struct ElectionInfo {
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Election {
     // Option => <supporter set>
-    dict: Vector<UnorderedSet<String>>,
+    dict: Vector<UnorderedSet<AccountId>>,
+    // option list, each option's supporters account ids are stored in according dict's set
     candidates: Vector<String>,
+    // the name of the election
     name: String,
+    // if election support multiple selection
     multiple: bool,
 }
 
@@ -90,11 +93,13 @@ impl Election {
             multiple,
         };
         let mut seen = HashSet::new(); // reduce duplicates
-        for (idx, candidate) in candidates.iter().enumerate() {
+        for candidate in candidates {
             if !seen.contains(candidate) {
+                res.dict.push(&UnorderedSet::new(Prefix::supporter_set(
+                    election_id,
+                    res.candidates.len() as usize,
+                )));
                 res.candidates.push(candidate);
-                res.dict
-                    .push(&UnorderedSet::new(Prefix::supporter_set(election_id, idx)));
                 seen.insert(candidate);
             }
         }
@@ -102,17 +107,21 @@ impl Election {
     }
 
     pub fn vote(&mut self, options: &Vec<String>, owner_id: AccountId) -> bool {
-        assert!(self.multiple && options.len() >= 1 || !self.multiple && options.len() == 1);
+        if !((self.multiple && options.len() >= 1) || (!self.multiple && options.len() == 1)) {
+            return false;
+        }
 
         let mut changed = false;
         for (idx, candidate) in self.candidates.iter().enumerate() {
             let mut support_set = self.dict.get(idx as u64).unwrap();
-            if options.contains(&candidate) { //vote for
+            if options.contains(&candidate) {
+                //vote for
                 if support_set.insert(&owner_id) {
                     self.dict.replace(idx as u64, &support_set);
                     changed = true;
                 }
-            } else { // not for, should remove
+            } else {
+                // not for, should remove
                 if support_set.remove(&owner_id) {
                     self.dict.replace(idx as u64, &support_set);
                     changed = true;
@@ -217,7 +226,7 @@ impl Voteer {
         vec![]
     }
 
-    pub fn get_elections(&self,user_id:&AccountId) -> Vec<ElectionInfo> {
+    pub fn get_elections(&self, user_id: &AccountId) -> Vec<ElectionInfo> {
         if let Some(ids) = self.user_election.get(user_id) {
             let mut ans = Vec::with_capacity(ids.len() as usize);
             for id in ids.iter() {
@@ -231,7 +240,7 @@ impl Voteer {
         vec![]
     }
 
-    pub fn get_last5elections(self)->Vec<ElectionInfo> {
+    pub fn get_last5elections(self) -> Vec<ElectionInfo> {
         let sz = self.election_count.min(5) as usize;
         let mut ans = Vec::with_capacity(sz);
         for id in (0..self.election_count).rev().take(sz) {
