@@ -9,13 +9,22 @@ export default function Election({name, id}) {
     voteFor = event.target.value
   }
 
+  const loadElection = async ({ election_id }) => window.contract.get_candidates({election_id:election_id });
+
+  const ElectionHolder = () => null;
+  const ElectionDetails = ({options }) => {
+    const [data, setData]= useState(options);
+    function reload() {
+      window.contract.get_candidates({election_id:id }).then(data=>setData(data));
+    }
+
   function handleVote() {
     if (voteFor == null || voteFor.length == 0) return; 
     let params = {
       election_id:id,
       options: [voteFor],
     }
-    contract.vote(params).then(v => console.log(v))
+    contract.vote(params).then(v => reload())
   }
 
   function handleRevoke() {
@@ -24,13 +33,9 @@ export default function Election({name, id}) {
       election_id:id,
       options: [voteFor],
     }
-    contract.revoke(params).then(v => console.log(v))
+    contract.revoke(params).then(v => reload())
   }
-
-  const loadElection = ({ election_id }) => window.contract.get_candidates({election_id:election_id });
-  
-  const ElectionHolder = () => null;
-  const ElectionDetails = ({ data }) => (
+    return (
     <div>
     <table widht='100%' onChange={onChangeValue}>
     {data.map(candidate=> (
@@ -50,7 +55,7 @@ export default function Election({name, id}) {
     <button onClick={handleVote}>vote</button>&nbsp;&nbsp;&nbsp;&nbsp;
     <button onClick={handleRevoke}>revoke</button>
     </div>
-  );
+  );}
 
 
   return (
@@ -60,7 +65,7 @@ export default function Election({name, id}) {
     <Async.Pending>
       <ElectionHolder />
     </Async.Pending>
-    <Async.Fulfilled>{data => <ElectionDetails data={data} />}</Async.Fulfilled>
+    <Async.Fulfilled>{data => <ElectionDetails options={data} />}</Async.Fulfilled>
     <Async.Rejected>{error => <p>{error.message}</p>}</Async.Rejected>
   </Async>
   </>
