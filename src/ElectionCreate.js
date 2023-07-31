@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react'
 
-export default function ElectionCreate({contract}) {
+export default function ElectionCreate({contract, updateElections}) {
     const electionTitleRef = useRef()
     const electionCandidatesRef = useRef()
     const [multiple, setMultiple] = useState(false)
@@ -17,7 +17,7 @@ export default function ElectionCreate({contract}) {
         }
 
         console.log(params)
-        contract.create_election(params).then(v => console.log(v))
+        contract.create_election(params).then(v => {console.log(v); updateElections();});
     }
 
     function onChangeValue(event) {

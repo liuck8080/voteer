@@ -168,10 +168,17 @@ export default function App() {
   //   // </>
   // )
 
+  function updateElections() {
+    window.contract.get_last5elections()
+    .then(electionsFromContract => {
+      set_elections(electionsFromContract)
+    })
+  }
+
   const electionElements = elections.map(e => (<Election key={e.id} name={e.name} id={e.id}/>))
   return (
     <>
-    <ElectionCreate contract={window.contract}/>
+    <ElectionCreate contract={window.contract} updateElections={updateElections}/>
     <hr/>
     {electionElements}
     </>
