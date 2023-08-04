@@ -15,9 +15,9 @@ near_sdk::setup_alloc!();
 #[derive(BorshSerialize, BorshStorageKey)]
 enum Prefix {
     ElectionDict,
-    CandidateMap { hash: Vec<u8> },
+    CandidateMap { hash: Vec<u8> },// option => supporter set
     CandidateVec { hash: Vec<u8> },
-    SupporterSet { hash: Vec<u8> },
+    SupporterSet { hash: Vec<u8> }, // supporter set of an option
     UserElectionMap,
     UserElectionSet { hash: Vec<u8> },
 }
@@ -57,6 +57,9 @@ impl Prefix {
     }
 }
 
+/**
+ * this structure only for frontend display
+ */
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Candidate {
@@ -67,8 +70,8 @@ pub struct Candidate {
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct ElectionInfo {
-    name: String,
-    id: u128,
+    name: String, // election name
+    id: u128, // election id
 }
 
 ///! this is an election provide several options;
