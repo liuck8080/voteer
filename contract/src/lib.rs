@@ -7,6 +7,7 @@ use std::vec;
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{UnorderedMap, UnorderedSet, Vector};
+use near_sdk::json_types::U128;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, near_bindgen, AccountId, BorshStorageKey, PanicOnDefault};
 
@@ -71,7 +72,7 @@ pub struct Candidate {
 #[serde(crate = "near_sdk::serde")]
 pub struct ElectionInfo {
     name: String, // election name
-    id: u128, // election id
+    id: U128, // election id
 }
 
 ///! this is an election provide several options;
@@ -188,7 +189,7 @@ impl Voteer {
         candidates: &Vec<String>,
         multiple: bool,
         name: &String,
-    ) -> u128 {
+    ) -> U128 {
         let election_id = self.election_count;
         self.election_count += 1;
         let elect = Election::new(candidates, multiple, election_id, name);
@@ -203,27 +204,27 @@ impl Voteer {
             election_vec.push(&election_id);
             self.user_election.insert(&user_id, &election_vec);
         }
-        election_id
+        election_id.into()
     }
 
-    pub fn vote(&mut self, election_id: u128, options: &Vec<String>) {
-        if let Some(mut election) = self.elections.get(&election_id) {
+    pub fn vote(&mut self, election_id: U128, options: &Vec<String>) {
+        if let Some(mut election) = self.elections.get(&election_id.into()) {
             if election.vote(options, env::signer_account_id()) {
-                self.elections.insert(&election_id, &election);
+                self.elections.insert(&election_id.into(), &election);
             }
         }
     }
 
-    pub fn revoke(&mut self, election_id: u128, options: &Vec<String>) {
-        if let Some(mut election) = self.elections.get(&election_id) {
+    pub fn revoke(&mut self, election_id: U128, options: &Vec<String>) {
+        if let Some(mut election) = self.elections.get(&election_id.into()) {
             if election.revoke_vote(options, env::signer_account_id()) {
-                self.elections.insert(&election_id, &election);
+                self.elections.insert(&election_id.into(), &election);
             }
         }
     }
 
-    pub fn get_candidates(&self, election_id: u128) -> Vec<Candidate> {
-        if let Some(election) = self.elections.get(&election_id) {
+    pub fn get_candidates(&self, election_id: U128) -> Vec<Candidate> {
+        if let Some(election) = self.elections.get(&election_id.into()) {
             return election.get_candidates();
         }
         vec![]
@@ -235,7 +236,7 @@ impl Voteer {
             for id in ids.iter() {
                 ans.push(ElectionInfo {
                     name: self.elections.get(&id).unwrap().name,
-                    id,
+                    id: id.into(),
                 });
             }
             return ans;
@@ -249,7 +250,7 @@ impl Voteer {
         for id in (0..self.election_count).rev().take(sz) {
             ans.push(ElectionInfo {
                 name: self.elections.get(&id).unwrap().name,
-                id,
+                id: id.into(),
             });
         }
         return ans;
