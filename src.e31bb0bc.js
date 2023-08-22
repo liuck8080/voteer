@@ -48202,7 +48202,7 @@ function Election({
   }) => {
     const [data, setData] = (0, _react.useState)(options);
     function reload() {
-      checkedOptions = [];
+      checkedOptions.current = [];
       window.contract.get_candidates({
         election_id: id
       }).then(data => setData(data));
