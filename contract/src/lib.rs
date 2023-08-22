@@ -16,7 +16,7 @@ near_sdk::setup_alloc!();
 #[derive(BorshSerialize, BorshStorageKey)]
 enum Prefix {
     ElectionDict,
-    CandidateMap { hash: Vec<u8> },// option => supporter set
+    CandidateMap { hash: Vec<u8> }, // option => supporter set
     CandidateVec { hash: Vec<u8> },
     SupporterSet { hash: Vec<u8> }, // supporter set of an option
     UserElectionMap,
@@ -71,8 +71,9 @@ pub struct Candidate {
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct ElectionInfo {
-    name: String, // election name
-    id: U128, // election id
+    name: String,   // election name
+    id: U128,       // election id
+    multiple: bool, // whether multiple
 }
 
 ///! this is an election provide several options;
@@ -234,10 +235,13 @@ impl Voteer {
         if let Some(ids) = self.user_election.get(user_id) {
             let mut ans = Vec::with_capacity(ids.len() as usize);
             for id in ids.iter() {
-                ans.push(ElectionInfo {
-                    name: self.elections.get(&id).unwrap().name,
-                    id: id.into(),
-                });
+                if let Some(elect) = self.elections.get(&id) {
+                    ans.push(ElectionInfo {
+                        name: elect.name,
+                        id: id.into(),
+                        multiple: elect.multiple,
+                    });
+                }
             }
             return ans;
         }
@@ -247,11 +251,17 @@ impl Voteer {
     pub fn get_last5elections(self) -> Vec<ElectionInfo> {
         let sz = self.election_count.min(5) as usize;
         let mut ans = Vec::with_capacity(sz);
-        for id in (0..self.election_count).rev().take(sz) {
-            ans.push(ElectionInfo {
-                name: self.elections.get(&id).unwrap().name,
-                id: id.into(),
-            });
+        for id in (0..self.election_count).rev() {
+            if let Some(elect) = self.elections.get(&id) {
+                ans.push(ElectionInfo {
+                    name: elect.name,
+                    id: id.into(),
+                    multiple: elect.multiple,
+                });
+                if ans.len() == sz {
+                    break;
+                }
+            }
         }
         return ans;
     }

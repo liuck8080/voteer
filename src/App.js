@@ -174,8 +174,8 @@ export default function App() {
       set_elections(electionsFromContract)
     })
   }
-
-  const electionElements = elections.map(e => (<Election key={e.id} name={e.name} id={e.id}/>))
+  console.log(elections);
+  const electionElements = elections.map(e => (<Election key={e.id} name={e.name} id={e.id} mutiple={e.multiple}/>));
   return (
     <>
     <ElectionCreate contract={window.contract} updateElections={updateElections}/>
