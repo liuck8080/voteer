@@ -25,7 +25,7 @@ export default function Election({name, id, mutiple}) {
   const ElectionDetails = ({options }) => {
     const [data, setData]= useState(options);
     function reload() {
-      checkedOptions = [];
+      checkedOptions.current = [];
       window.contract.get_candidates({election_id:id }).then(data=>setData(data));
     }
 
