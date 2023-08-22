@@ -62,7 +62,7 @@ Each account on NEAR can have at most one contract deployed to it. If you've alr
 
 2. Create a subaccount (replace `YOUR-NAME` below with your actual account name):
 
-      near create-account Voteer.YOUR-NAME.testnet --masterAccount YOUR-NAME.testnet
+      near create-account voteer.liuck.testnet --masterAccount liuck.testnet
 
 
 Step 2: set contract name in code
@@ -79,6 +79,9 @@ Step 3: deploy!
 One command:
 
     yarn deploy
+Or if you want to deploy a testnet environment, run with NODE_ENV set to development:
+
+    NODE_ENV=development yarn deploy
 
 As you can see in `package.json`, this does two things:
 

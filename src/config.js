@@ -1,4 +1,4 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME ||'Voteer'
+const CONTRACT_NAME = process.env.CONTRACT_NAME ||'voteer.liuck.testnet'
 const INIT_FUNCTION = 'new'
 const INIT_ARGS='{}'
 
