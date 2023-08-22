@@ -24,8 +24,8 @@ function getConfig(env) {
       walletUrl: 'https://wallet.testnet.near.org',
       helperUrl: 'https://helper.testnet.near.org',
       explorerUrl: 'https://explorer.testnet.near.org',
-      // initFunction: INIT_FUNCTION,
-      // initArgs: INIT_ARGS,
+      initFunction: INIT_FUNCTION,
+      initArgs: INIT_ARGS,
     }
   case 'betanet':
     return {
