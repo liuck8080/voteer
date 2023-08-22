@@ -46379,7 +46379,7 @@ __exportStar(require("./browser-connect"), exports);
 require("error-polyfill");
 
 },{"./key_stores/browser-index":"../node_modules/near-api-js/lib/key_stores/browser-index.js","./common-index":"../node_modules/near-api-js/lib/common-index.js","./browser-connect":"../node_modules/near-api-js/lib/browser-connect.js","error-polyfill":"../node_modules/error-polyfill/index.js"}],"config.js":[function(require,module,exports) {
-const CONTRACT_NAME = "dev-1690530556219-51894321733525" || 'Voteer';
+const CONTRACT_NAME = "dev-1692691211947-74838877203072" || 'voteer.liuck.testnet';
 const INIT_FUNCTION = 'new';
 const INIT_ARGS = '{}';
 function getConfig(env) {
@@ -48169,11 +48169,27 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function Election({
   name,
-  id
+  id,
+  mutiple
 }) {
-  let voteFor = '';
-  function onChangeValue(event) {
-    voteFor = event.target.value;
+  const checkedOptions = (0, _react.useRef)([]);
+  function onChangeValue(e) {
+    const {
+      value,
+      checked
+    } = e.target;
+    if (checked) {
+      if (!checkedOptions.current.includes(value)) {
+        if (mutiple) {
+          checkedOptions.current.push(value);
+        } else {
+          checkedOptions.current[0] = value;
+        }
+        ;
+      }
+    } else {
+      checkedOptions.current = checkedOptions.current.filter(e => e !== value);
+    }
   }
   const loadElection = async ({
     election_id
@@ -48191,30 +48207,30 @@ function Election({
       }).then(data => setData(data));
     }
     function handleVote() {
-      if (voteFor == null || voteFor.length == 0) return;
+      if (checkedOptions.current == null || checkedOptions.current.length == 0) return;
       let params = {
         election_id: id,
-        options: [voteFor]
+        options: checkedOptions.current
       };
       contract.vote(params).then(v => reload());
     }
     function handleRevoke() {
-      if (voteFor == null || voteFor.length == 0) return;
+      if (checkedOptions.current == null || checkedOptions.current.length == 0) return;
       let params = {
         election_id: id,
-        options: [voteFor]
+        options: checkedOptions.current
       };
       contract.revoke(params).then(v => reload());
     }
     return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("table", {
-      widht: "100%",
-      onChange: onChangeValue
-    }, data.map(candidate => /*#__PURE__*/_react.default.createElement("tbody", {
+      widht: "100%"
+    }, data.map((candidate, idx) => /*#__PURE__*/_react.default.createElement("tbody", {
       key: (0, _uuid.v4)()
     }, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, /*#__PURE__*/_react.default.createElement("input", {
-      type: "radio",
+      type: mutiple ? "checkbox" : "radio",
       name: "election_" + id,
-      value: candidate.name
+      value: candidate.name,
+      onChange: onChangeValue
     })), /*#__PURE__*/_react.default.createElement("td", null, candidate.name), /*#__PURE__*/_react.default.createElement("td", null)), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "\xA0"), /*#__PURE__*/_react.default.createElement("td", null, "\xA0"), /*#__PURE__*/_react.default.createElement("td", null, candidate.supported))))), /*#__PURE__*/_react.default.createElement("button", {
       onClick: handleVote
     }, "vote"), "\xA0\xA0\xA0\xA0", /*#__PURE__*/_react.default.createElement("button", {
@@ -48393,10 +48409,12 @@ function App() {
       set_elections(electionsFromContract);
     });
   }
+  console.log(elections);
   const electionElements = elections.map(e => /*#__PURE__*/_react.default.createElement(_Election.default, {
     key: e.id,
     name: e.name,
-    id: e.id
+    id: e.id,
+    mutiple: e.multiple
   }));
   return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(_ElectionCreate.default, {
     contract: window.contract,
@@ -48439,7 +48457,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33789" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46167" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
